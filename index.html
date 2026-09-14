@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BookMyWorkshop — Setting Up The Stage</title>
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="BookMyWorkshop — Setting Up The Stage" />
+  <meta name="description" content="bookmyworkshop.co is currently rigging the stage for world-class dance masterclasses." />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💃</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-glow: #ff2e8c;
+      --secondary-glow: #7c3aed;
+      --accent-glow: #00f0ff;
+      --bg-dark: #050608;
+      --card-bg: rgba(14, 17, 26, 0.75);
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* Canvas Ambient Lighting Overlay */
+    #stage-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Grid Overlay on Stage Floor */
+    .stage-floor-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8) 0%, transparent 80%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Top Stage Light Rigging Hardware Graphic */
+    .stage-rigging-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: #0f1118;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      z-index: 20;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10%;
+    }
+
+    .light-fixture {
+      width: 20px;
+      height: 12px;
+      background: #1e2333;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 2px 2px 6px 6px;
+      position: relative;
+    }
+
+    .light-fixture::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 3px;
+      width: 12px;
+      height: 6px;
+      background: var(--primary-glow);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--primary-glow);
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      max-width: 580px;
+      width: 100%;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      background: rgba(255, 46, 140, 0.1);
+      border: 1px solid rgba(255, 46, 140, 0.3);
+      color: #ff2e8c;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 25px rgba(255, 46, 140, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--primary-glow);
+      box-shadow: 0 0 10px var(--primary-glow);
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    /* Title */
+    .brand-title {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+      line-height: 1.1;
+    }
+
+    .brand-accent {
+      background: linear-gradient(135deg, var(--primary-glow) 0%, var(--secondary-glow) 50%, var(--accent-glow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: background 0.5s ease;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+
+    /* Stage Rigging Console Card */
+    .console-card {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 1.75rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      margin-bottom: 2rem;
+      transition: border-color 0.4s ease;
+    }
+
+    .console-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Color Palette Controls */
+    .color-presets {
+      display: grid;
+      grid-cols: 4;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .color-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 0.6rem 0.4rem;
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.25s ease;
+    }
+
+    .color-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .color-btn.active {
+      border-color: var(--primary-glow);
+      background: rgba(255, 46, 140, 0.15);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 46, 140, 0.25);
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Sound-Check Beat Pad Buttons */
+    .soundcheck-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.25rem;
+    }
+
+    .sound-pads {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .pad-btn {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 0.75rem;
+      color: #ffffff;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .pad-btn:hover {
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    .pad-btn:active {
+      transform: scale(0.95);
+      background: var(--accent-glow);
+      color: #000;
+    }
+
+    /* Rigging Progress Checklist */
+    .stage-checklist {
+      width: 100%;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      background: rgba(6, 7, 10, 0.6);
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+    }
+
+    .check-item.done {
+      color: #34d399;
+    }
+
+    .check-item.active {
+      color: var(--primary-glow);
+    }
+
+    /* Domain Tag */
+    .domain-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8125rem;
+      color: #64748b;
+      letter-spacing: 0.05em;
+    }
+
+    .domain-tag span {
+      color: #00f0ff;
+      font-weight: 700;
+    }
+
+    .cursor-hint {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stage Light Rigging Bar at Top -->
+  <div class="stage-rigging-bar">
+    <div class="light-fixture"></div>
+    <div class="light-fixture"></div>
+    <div class="light-fixture"></div>
+    <div class="light-fixture"></div>
+    <div class="light-fixture"></div>
+  </div>
+
+  <!-- Interactive Stage Spotlights Canvas -->
+  <canvas id="stage-canvas"></canvas>
+
+  <div class="stage-floor-grid"></div>
+
+  <main class="container">
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span>Stage Under Construction</span>
+    </div>
+
+    <h1 class="brand-title">
+      BookMy<span class="brand-accent">Workshop</span>
+    </h1>
+
+    <p class="subtitle">
+      Where passion meets rhythm. The ultimate platform for discovering, booking & hosting dance masterclasses is almost ready.
+    </p>
+
+    <!-- Stage Rigging Console -->
+    <div class="console-card">
+      
+      <!-- Color Preset Switcher -->
+      <div class="console-title">
+        <span>Studio Vibe & Lighting</span>
+        <span style="font-family: 'JetBrains Mono'; font-size: 0.65rem; color: #00f0ff;">BEAT SYNC ACTIVE</span>
+      </div>
+
+      <div class="color-presets">
+        <button class="color-btn active" data-primary="#ff2e8c" data-secondary="#7c3aed" data-accent="#00f0ff" onclick="setStageColor(this)">
+          <span class="swatch" style="background: #ff2e8c; color: #ff2e8c;"></span>
+          <span>Magenta</span>
+        </button>
+
+        <button class="color-btn" data-primary="#00f0ff" data-secondary="#3b82f6" data-accent="#ff2e8c" onclick="setStageColor(this)">
+          <span class="swatch" style="background: #00f0ff; color: #00f0ff;"></span>
+          <span>Cyan</span>
+        </button>
+
+        <button class="color-btn" data-primary="#f59e0b" data-secondary="#ef4444" data-accent="#fbbf24" onclick="setStageColor(this)">
+          <span class="swatch" style="background: #f59e0b; color: #f59e0b;"></span>
+          <span>Golden</span>
+        </button>
+
+        <button class="color-btn" data-primary="#a855f7" data-secondary="#6366f1" data-accent="#ec4899" onclick="setStageColor(this)">
+          <span class="swatch" style="background: #a855f7; color: #a855f7;"></span>
+          <span>Violet</span>
+        </button>
+      </div>
+
+      <!-- Live Stage Rigging Progress Checklist -->
+      <div class="stage-checklist">
+        <div class="check-item done">
+          <span>[✓] Sprung Floors & Mirror Studio Calibrated</span>
+          <span>100%</span>
+        </div>
+        <div class="check-item done">
+          <span>[✓] Top Choreographers & Masterclasses Onboarding</span>
+          <span>100%</span>
+        </div>
+        <div class="check-item active">
+          <span>[🔥] Fine-Tuning 1-Click Ticket Booking & Spot Drops</span>
+          <span>DROPPING SOON</span>
+        </div>
+      </div>
+
+      <!-- Sound-Check Beat Pads -->
+      <div class="soundcheck-section">
+        <div class="console-title" style="margin-bottom: 0.75rem;">
+          <span>Acoustic Sound Check</span>
+          <span style="font-size: 0.65rem; color: #00f0ff;">Click pads to test sound</span>
+        </div>
+
+        <div class="sound-pads">
+          <button class="pad-btn" onclick="playSound('kick', this)">
+            <span>🥁 Kick</span>
+          </button>
+          <button class="pad-btn" onclick="playSound('snare', this)">
+            <span>👏 Clap</span>
+          </button>
+          <button class="pad-btn" onclick="playSound('synth', this)">
+            <span>🎵 Synth</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Domain Tag -->
+    <div class="domain-tag">
+      <span>bookmyworkshop.co</span>
+    </div>
+
+    <div class="cursor-hint">
+      💡 Move your mouse / tap screen to control the stage spotlights
+    </div>
+  </main>
+
+  <script>
+    // Canvas Stage Spotlight Controller
+    const canvas = document.getElementById('stage-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    let mouse = { x: width / 2, y: height / 2 };
+    let primaryColor = '#ff2e8c';
+    let secondaryColor = '#7c3aed';
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    });
+
+    function drawSpotlights() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Left Spotlight Beam
+      const gradLeft = ctx.createRadialGradient(width * 0.2, 0, 10, mouse.x, mouse.y, width * 0.5);
+      gradLeft.addColorStop(0, primaryColor + '99');
+      gradLeft.addColorStop(0.5, secondaryColor + '33');
+      gradLeft.addColorStop(1, 'transparent');
+
+      ctx.beginPath();
+      ctx.moveTo(width * 0.2, 0);
+      ctx.lineTo(mouse.x - 120, mouse.y + 100);
+      ctx.lineTo(mouse.x + 120, mouse.y + 100);
+      ctx.closePath();
+      ctx.fillStyle = gradLeft;
+      ctx.fill();
+
+      // Right Spotlight Beam
+      const gradRight = ctx.createRadialGradient(width * 0.8, 0, 10, mouse.x, mouse.y, width * 0.5);
+      gradRight.addColorStop(0, secondaryColor + '99');
+      gradRight.addColorStop(0.5, primaryColor + '33');
+      gradRight.addColorStop(1, 'transparent');
+
+      ctx.beginPath();
+      ctx.moveTo(width * 0.8, 0);
+      ctx.lineTo(mouse.x - 100, mouse.y + 100);
+      ctx.lineTo(mouse.x + 100, mouse.y + 100);
+      ctx.closePath();
+      ctx.fillStyle = gradRight;
+      ctx.fill();
+
+      // Cursor Stage Spotlight Ring
+      const ringGrad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 140);
+      ringGrad.addColorStop(0, primaryColor + '44');
+      ringGrad.addColorStop(0.6, secondaryColor + '11');
+      ringGrad.addColorStop(1, 'transparent');
+
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, 140, 0, Math.PI * 2);
+      ctx.fillStyle = ringGrad;
+      ctx.fill();
+
+      requestAnimationFrame(drawSpotlights);
+    }
+
+    drawSpotlights();
+
+    // Stage Lighting Color Switcher
+    function setStageColor(btn) {
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      primaryColor = btn.getAttribute('data-primary');
+      secondaryColor = btn.getAttribute('data-secondary');
+      const accent = btn.getAttribute('data-accent');
+
+      document.documentElement.style.setProperty('--primary-glow', primaryColor);
+      document.documentElement.style.setProperty('--secondary-glow', secondaryColor);
+      document.documentElement.style.setProperty('--accent-glow', accent);
+
+      // Flash light fixtures
+      document.querySelectorAll('.light-fixture').forEach(f => {
+        f.style.borderColor = primaryColor;
+      });
+    }
+
+    // Robust Web Audio Synthesizer for Dance Sound Check
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Unlock Audio Context on first interaction anywhere on page
+    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('touchstart', initAudio, { once: true });
+
+    function playSound(type, btnElement) {
+      initAudio();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+
+      // Add visual active pulse to button
+      if (btnElement) {
+        btnElement.style.transform = 'scale(0.92)';
+        btnElement.style.borderColor = '#00f0ff';
+        btnElement.style.boxShadow = '0 0 20px #00f0ff';
+        setTimeout(() => {
+          btnElement.style.transform = '';
+          btnElement.style.borderColor = '';
+          btnElement.style.boxShadow = '';
+        }, 150);
+      }
+
+      try {
+        if (type === 'kick') {
+          // Deep Dance Studio Sub-Kick
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+
+          gain.gain.setValueAtTime(1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'snare') {
+          // Punchy Dance Studio Clap / Snare Noise Burst
+          const bufferSize = audioCtx.sampleRate * 0.15;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const output = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          const whiteNoise = audioCtx.createBufferSource();
+          whiteNoise.buffer = buffer;
+
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.value = 1000;
+
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.8, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+          whiteNoise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          whiteNoise.start(now);
+          whiteNoise.stop(now + 0.15);
+        } else if (type === 'synth') {
+          // Energetic Synth Stabs
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (err) {
+        console.error('Audio playback error:', err);
+      }
+    }
+  </script>
+</body>
+</html>
+```
